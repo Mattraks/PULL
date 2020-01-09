@@ -1,0 +1,37 @@
+name: Build Image
+
+on:
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    container:
+      image: node:18
+      options: --user root --privileged
+      env:
+        TZ: Asia/Shanghai
+      volumes:
+        - /dev:/dev
+    steps:
+      - name: Install dependencies
+        run: |
+          apt-get update
+          export DEBIAN_FRONTEND=noninteractive
+          apt-get install -y --no-install-recommends \
+            sudo tzdata docker.io qemu-utils qemu-user-static binfmt-support parted e2fsprogs \
+            curl tar python3 python3-pip rsync git android-sdk-libsparse-utils coreutils zerofree wget \
+            file tree
+          apt-get clean
+          rm -rf /var/lib/apt/lists/*
+          ln -snf /usr/share/zoneinfo/$TZ /etc/localtime
+          echo $TZ > /etc/timezone
+          update-binfmts --enable
+        env:
+          DEBIAN_FRONTEND: noninteractive
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+      - name: Upload firmware
+        uses: actions/upload-artifact@v4
+        with:
+          name: firmware
+          path: /mnt/output

@@ -1,0 +1,17 @@
+name: Delete1
+on:
+  workflow_dispatch:
+jobs:
+  delete-runs:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: read
+    steps:
+      - name: Delete workflow runs
+        uses: Mattraks/delete-workflow-runs@dev
+        with:
+          retain_days: 0
+          keep_minimum_runs: 0
+          check_branch_existence: 'true'
+          check_pullrequest_exist: 'true'
